@@ -38,8 +38,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="KeePass">
-      <HintPath Condition="'$(OS)' == 'Windows_NT'">$(USERPROFILE)\KeePassDEV\KeePass.exe</HintPath>
-      <HintPath Condition="'$(OS)' != 'Windows_NT'">${home}/keepass-dev/KeePass.exe</HintPath>
+      <HintPath>..\..\KeePass_DEV\KeePass.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

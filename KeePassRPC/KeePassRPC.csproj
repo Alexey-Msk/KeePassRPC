@@ -111,8 +111,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="KeePass">
-      <HintPath Condition="'$(OS)' == 'Windows_NT'">$(USERPROFILE)\KeePassDEV\KeePass.exe</HintPath>
-      <HintPath Condition="'$(OS)' != 'Windows_NT'">${home}/keepass-dev/KeePass.exe</HintPath>
+      <HintPath>..\..\KeePass_Dev\KeePass.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -215,7 +214,9 @@
     <Compile Include="SRP.cs" />
     <Compile Include="URLSummary.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="DPIScaledToolStripMenuItem.cs" />
+    <Compile Include="DPIScaledToolStripMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="IconConverter.cs" />
     <Compile Include="WebSocketServerConfig.cs" />
   </ItemGroup>
@@ -309,7 +310,12 @@
     <PostBuildEvent>
       echo POSTBUILDSTEP for $(ProjectName)
 
-      set KPDir=$(USERPROFILE)\KeePassDEV\
+      set KPDir=$(ProjectDir)
+      set KPDir=%KPDir:~0,-1%
+      call :ParentPath "%KPDir%" KPDir
+      call :ParentPath "%KPDir%" KPDir
+      set KPDir=%KPDir%\KeePass_DEV\
+      echo KPDir = "%KPDir%"
       set KPPDir=%25KPDir%25plugins\
       set KPPTempDir=%25KPPDir%25$(ProjectName)
 
@@ -384,6 +390,7 @@
       echo Files copied to temporary directory
 
       REM create the PLGX
+      rem echo "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.34
       "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.34
       if errorlevel 1 goto BuildEventFailed
       echo PLGX created
@@ -405,14 +412,23 @@
       exit 1
 
       :BuildEventOK
-      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
+      exit 0
+
+      :ParentPath
+      :: use temp variable to hold the path, so we can substring
+      set PARENT_PATH=%~dp1
+      :: strip the trailing slash, so we can call it again to get its parent
+      set %2=%PARENT_PATH:~0,-1%
+      exit /b
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
     <PostBuildEvent>
       #!/bin/bash
       echo POSTBUILDSTEP for $(ProjectName)
 
-      export KPDir="${HOME}/keepass-dev/"
+      export KPDir="../../KeePass_DEV/"
       export KPPDir=${KPDir}Plugins/
       export KPPTempDir="${KPPDir}$(ProjectName)"
             
@@ -443,7 +459,7 @@
       #!/bin/bash
       echo POSTBUILDSTEP for $(ProjectName)
 
-      export KPDir="${HOME}/keepass-dev/"
+      export KPDir="../../KeePass_DEV/"
       export KPPDir=${KPDir}Plugins/
       export KPPTempDir="${KPPDir}$(ProjectName)"
             
